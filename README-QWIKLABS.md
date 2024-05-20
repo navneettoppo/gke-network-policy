@@ -4,24 +4,23 @@
 
 <!-- TOC -->
 
-* [Introduction](#introduction)
-* [Architecture](#architecture)
-* [Prerequisites](#prerequisites)
-  * [Tools](#tools)
-  * [Versions](#versions)
-* [Deployment](#deployment)
-  * [Authenticate gcloud](#authenticate-gcloud)
-  * [Configure gcloud settings](#configuring-gcloud-settings)
-  * [Setup this project](#setup-this-project)
-  * [One time initialization.](#one-time-initialization)
-  * [Provisioning the Kubernetes Engine Cluster](#provisioning-the-kubernetes-engine-cluster)
-* [Validation](#validation)
-* [Installing the hello server](#installing-the-hello-server)
-* [Restricting access with a Network Policy](#restricting-access-with-a-network-policy)
-* [Restricting namespaces with Network Policies](#restricting-namespaces-with-network-policies)
-* [Tear Down](#tear-down)
-* [Troubleshooting](#troubleshooting)
-* [Relevant Material](#relevant-material)
+  * [Introduction](#introduction)
+  * [Architecture](#architecture)
+  * [Initialize GCP Authorization](#initialize-gcp-authorization)
+  * [Deplyment steps](#deplyment-steps)
+     * [Setup this project](#setup-this-project)
+     * [Provisioning the Kubernetes Engine Cluster](#provisioning-the-kubernetes-engine-cluster)
+  * [Validation](#validation)
+  * [Installing the hello server](#installing-the-hello-server)
+  * [Confirming default access to the hello server](#confirming-default-access-to-the-hello-server)
+  * [Restricting access with a Network Policy](#restricting-access-with-a-network-policy)
+  * [Restricting namespaces with Network Policies](#restricting-namespaces-with-network-policies)
+  * [Validation](#validation-1)
+  * [Tear Down](#tear-down)
+  * [Troubleshooting](#troubleshooting)
+     * [The install script fails with a Permission denied when running Terraform](#the-install-script-fails-with-a-permission-denied-when-running-terraform)
+     * [Invalid fingerprint error during Terraform operations](#invalid-fingerprint-error-during-terraform-operations)
+  * [Relevant Material](#relevant-material)
 
 <!-- TOC -->
 
@@ -51,82 +50,18 @@ Within the cluster, provision three workloads:
 
 ![architecture](./img/architecture.png)
 
-## Prerequisites
 
-### Run Demo in a Google Cloud Shell
+## Initialize GCP Authorization
 
-Click the button below to run the demo in a [Google Cloud Shell](https://cloud.google.com/shell/docs/).
-
-[![Open in Cloud Shell](http://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https://github.com/GoogleCloudPlatform/gke-network-policy-demo.git&amp;cloudshell_image=gcr.io/graphite-cloud-shell-images/terraform:latest&amp;cloudshell_tutorial=README.md)
-
-All the tools for the demo are installed. When using Cloud Shell execute the following
-command in order to setup gcloud cli. When executing this command please setup your region
-and zone.
+When using Cloud Shell execute the following command in order to setup gcloud cli.
 
 ```console
 gcloud init
 ```
 
+## Deplyment steps
 
-### Tools
-1. [Terraform >= 0.12.3](https://www.terraform.io/downloads.html)
-2. [Google Cloud SDK version >= 253.0.0](https://cloud.google.com/sdk/docs/downloads-versioned-archives)
-3. [kubectl matching the latest GKE version](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-4. bash or bash compatible shell
-5. [GNU Make 3.x or later](https://www.gnu.org/software/make/)
-6. A Google Cloud Platform project where you have permission to create networks
-
-#### Install Cloud SDK
-The Google Cloud SDK is used to interact with your GCP resources.
-[Installation instructions](https://cloud.google.com/sdk/downloads) for multiple platforms are available online.
-
-#### Install kubectl CLI
-
-The kubectl CLI is used to interteract with both Kubernetes Engine and kubernetes in general.
-[Installation instructions](https://cloud.google.com/kubernetes-engine/docs/quickstart)
-for multiple platforms are available online.
-
-#### Install Terraform
-
-Terraform is used to automate the manipulation of cloud infrastructure. Its
-[installation instructions](https://www.terraform.io/intro/getting-started/install.html) are also available online.
-
-## Deployment
-
-The steps below will walk you through using terraform to deploy a Kubernetes Engine cluster that you will then use for working with Kubernetes network policies.
-
-### Authenticate gcloud
-
-Prior to running this demo, ensure you have authenticated your gcloud client by running the following command:
-
-```console
-gcloud auth application-default login
-```
-
-### Configure gcloud settings
-
-Run `gcloud config list` and make sure that `compute/zone`, `compute/region` and `core/project` are populated with values that work for you. You can set their values with the following commands:
-
-```console
-# Where the region is us-east1
-gcloud config set compute/region us-east1
-
-Updated property [compute/region].
-```
-
-```console
-# Where the zone inside the region is us-east1-c
-gcloud config set compute/zone us-east1-c
-
-Updated property [compute/zone].
-```
-
-```console
-# Where the project name is my-project-name
-gcloud config set project my-project-name
-
-Updated property [core/project].
-```
+The following steps will allow a user to run the demo.
 
 ### Setup this project
 
@@ -330,7 +265,7 @@ deployment.apps/hello-client-allowed created
 deployment.apps/hello-client-blocked created
 ```
 
-### Validation
+## Validation
 
 Check the logs for the two new `hello-app` clients and you will see that both clients are able to connect successfully. This is because, *as of Kubernetes 1.10.x NetworkPolicies do not support restricting access to pods within a given namespace*. You can whitelist by pod label, namespace label, or whitelist the union (ie OR) of both. But you cannot yet whitelist the intersection (ie AND) of pod labels and namespace labels.
 
